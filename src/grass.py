@@ -68,11 +68,9 @@ class Grass:
         try:
             if not self.__login():
                 print('login failed')
-                self.driver.quit()
                 self.shutdown()
             if not self.__check_connection():
                 print('connection failed')
-                self.driver.quit()
                 self.shutdown()
 
             # to get metrics.
@@ -85,7 +83,8 @@ class Grass:
             self.shutdown()
 
     def shutdown(self):
-        print("app stopped")
+        self.driver.save_screenshot('./data/error.png')
+        print("shutdown app")
         if self.driver is not None:
             self.driver.quit()
         os.kill(os.getpid(), signal.SIGTERM)
@@ -155,7 +154,7 @@ class Grass:
 
     def __check_login(self):
         time.sleep(1)
-        for i in range(TRY):
+        for i in range(15):
             try:
                 self.driver.find_element('xpath', '//*[contains(text(), "Dashboard")]')
                 print('check login success')
