@@ -2,6 +2,11 @@
 
 Selenium based grass (app.getgrass.io) miner.
 
+## How to run?
+
+- I recommend to use docker-compose
+    - set environments in `docker-compose.yaml` first, and `docker compose up -d`
+
 ## Configuration
 
 ### Environments
@@ -28,6 +33,19 @@ Selenium based grass (app.getgrass.io) miner.
 ## Set extension file
 
 To support community node extension, this app needs crx file.
+
+### Link
+
+- [get from app.getgrass.io](https://app.getgrass.io/dashboard/store/item/extension)
+- [direct link (4.20.2, Linux)](https://files.getgrass.io/file/grass-extension-upgrades/extension-latest/grass-community-node-linux-4.20.2.zip)
+- You have to unzip the file.
+
+### sh
+
+``` bash
+$ curl -o ./data/grass.zip https://files.getgrass.io/file/grass-extension-upgrades/extension-latest/grass-community-node-linux-4.20.2.zip
+$ unzip ./data/grass.zip -d .
+```
 
 ### without docker
 

@@ -5,8 +5,8 @@ services:
     container_name: grass-miner
     restart: on-failure:1
     environment:
-      - GRASS_USER=USER
-      - GRASS_PASSWORD=PASSWORD
+      - GRASS_USER=
+      - GRASS_PASSWORD=
       - GRASS_CRX_NAME=grass-4.20.2.crx
       - GRASS_CRX_EXTENSION_ID=lkbnfiajjmbhnfledhphioinpickokdi
     ports:
