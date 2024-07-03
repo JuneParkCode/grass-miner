@@ -19,3 +19,8 @@ async def get_metrics():
 @router.get("/status")
 async def get_status():
     return grass.get_metrics()
+
+
+@router.get("/")
+async def get_root():
+    return "hello world"
