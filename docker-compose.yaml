@@ -3,12 +3,14 @@ services:
   grass:
     build: .
     container_name: grass-miner
-    restart: on-failure:1
+    restart: always
     environment:
-      - GRASS_USER=
-      - GRASS_PASSWORD=
-      - GRASS_CRX_NAME=grass-4.20.2.crx
-      - GRASS_CRX_EXTENSION_ID=lkbnfiajjmbhnfledhphioinpickokdi
+      - GRASS_USER=$GRASS_USER
+      - GRASS_PASSWORD=$GRASS_PASSWORD
+      - GRASS_CRX_NAME=$GRASS_CRX_NAME
+      - GRASS_CRX_EXTENSION_ID=$GRASS_CRX_EXTENSION_ID
+    env_file:
+      - .env
     ports:
       - "8000:80"
     volumes:
