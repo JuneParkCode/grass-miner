@@ -79,7 +79,6 @@ class Grass:
 
             # to get metrics.
             self.driver.get('https://app.getgrass.io/dashboard/networks')
-            time.sleep(3)
             self.__set_prometheus_metric()
         except Exception as e:
             print("An error occurred during startup.")
@@ -98,25 +97,14 @@ class Grass:
         self.driver.refresh()
 
         try_count = 1
-        while try_count <= TRY:
+        wait_time = 0.2
+        while try_count <= (TRY / wait_time):
             try:
-                time.sleep(1)
-
-                node_elem = self.driver.find_element('xpath', f"//tr[td[3]//*[contains(text(), '{self.ip}')]]")
-
-                time_connected = node_elem.find_element('xpath', 'td[4]').text
-                network_quality = float(node_elem.find_element('xpath', 'td[5]').text.replace("%", ""))
-                node_earnings = float(node_elem.find_element('xpath', 'td[6]').text.replace("K", ""))
-
-                self.metrics = {
-                    "time_connected": self.__convert_to_minutes(time_connected),
-                    "network_quality": network_quality,
-                    "node_earnings": node_earnings
-                }
+                time.sleep(wait_time)
+                self.metrics = self.__get_metric_from_page()
                 return self.metrics
             except Exception as e:
                 try_count += 1
-
         self.__save_error("metric_fail", "failed to fetch metrics")
         return self.metrics
 
@@ -188,27 +176,35 @@ class Grass:
         self.__save_error("connection_fail", "failed to check connections")
         return False
 
+    def __get_metric_from_page(self):
+        node_elem = self.driver.find_element('xpath', f"//tr[td[3]//*[contains(text(), '{self.ip}')]]")
+
+        node_name = node_elem.find_element('xpath', 'td[2]').text
+        time_connected = node_elem.find_element('xpath', 'td[4]').text
+        network_quality = float(node_elem.find_element('xpath', 'td[5]').text.replace("%", ""))
+        node_earnings = float(node_elem.find_element('xpath', 'td[6]').text.replace("K", ""))
+
+        return {
+            "node_name": node_name,
+            "time_connected": self.__convert_to_minutes(time_connected),
+            "network_quality": network_quality,
+            "node_earnings": node_earnings
+        }
+
     def __set_prometheus_metric(self):
         # get node table
-        try:
-            node_elem = self.driver.find_element('xpath', f"//tr[td[3]//*[contains(text(), '{self.ip}')]]")
-
-            node_name = node_elem.find_element('xpath', 'td[2]').text
-            time_connected = node_elem.find_element('xpath', 'td[4]').text
-            network_quality = float(node_elem.find_element('xpath', 'td[5]').text.replace("%", ""))
-            node_earnings = float(node_elem.find_element('xpath', 'td[6]').text.replace("K", ""))
-
-            prometheus.init(node_name, self.ip)
-            self.metrics = {
-                "node_name": node_name,
-                "time_connected": time_connected,
-                "network_quality": network_quality,
-                "node_earnings": node_earnings
-            }
-            return self.metrics
-        except Exception as e:
-            self.__save_error("set_prometheus_metric", "failed to set prometheus metrics")
-            return None
+        try_count = 1
+        wait_time = 0.2
+        while try_count <= (TRY / wait_time):
+            try:
+                time.sleep(wait_time)
+                self.metrics = self.__get_metric_from_page()
+                prometheus.init(self.metrics["node_name"], self.ip)
+                return self.metrics
+            except Exception as e:
+                try_count += 1
+        self.__save_error("set_prometheus_metric", "failed to set prometheus metrics")
+        self.shutdown()
 
     def __convert_to_minutes(self, time_str):
         pattern = r'(\d+)\s*day[s]?,\s*(\d+)\s*hr[s]?,\s*(\d+)\s*min[s]?'
