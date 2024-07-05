@@ -37,6 +37,9 @@ class Grass:
             self.password: str = os.environ['GRASS_PASSWORD']
             self.extension_id: str = os.environ['GRASS_CRX_EXTENSION_ID']
             self.crx_name: str = os.environ['GRASS_CRX_NAME']
+
+            if self.username is "" or self.password is "" or self.extension_id is "" or self.crx_name is "":
+                self.shutdown()
         except:
             print('invalid environment variables')
             self.shutdown()
