@@ -7,6 +7,11 @@ Selenium based grass (app.getgrass.io) miner.
 - I recommend to use docker-compose
     - set environments in `docker-compose.yaml` first, and `docker compose up -d`
 
+## NOTE
+
+- The app.getgrass.io server might be unstable, causing the error. You can fix the problem by retrying to run the
+  programme several times.
+
 ## Configuration
 
 ### Environments
@@ -44,7 +49,8 @@ To support community node extension, this app needs crx file.
 
 ``` bash
 $ curl -o ./data/grass.zip https://files.getgrass.io/file/grass-extension-upgrades/extension-latest/grass-community-node-linux-4.20.2.zip
-$ unzip ./data/grass.zip -d .
+$ cd ./data
+$ unzip grass.zip -d .
 ```
 
 ### without docker
@@ -56,13 +62,7 @@ The extension file must be located in `./data` directory.
 ├── data
 │   └── grass-4.20.2.crx <-- MUST BE HERE
 ├── Dockerfile
-├── README.md
-├── api.py
-├── docker-compose.yaml
-├── grass.py
-├── main.py
-├── prometheus.py
-└── requirements.txt
+└── ...
 
 ```
 
@@ -70,25 +70,9 @@ The extension file must be located in `./data` directory.
 
 If you use docker files in this repository, you can map the volume to `/app/data`
 
-#### docker compose example
+#### docker compose
 
-```docker-compose
-version: "3.8"
-services:
-  grass:
-    build: .
-    container_name: grass-miner
-    restart: on-failure:1
-    environment:
-      - GRASS_USER=${USER_NAME}
-      - GRASS_PASSWORD=${PASSWORD}
-      - GRASS_CRX_NAME=${CRX_FILE_NAME}
-      - GRASS_CRX_EXTENSION_ID=${EXTENSION_ID}
-    ports:
-      - "8000:80"
-    volumes:
-      - ./data:/app/data << NOTE!
-```
+use .env file. see .env.sample
 
 ## API
 
@@ -109,15 +93,14 @@ To check the status of a node, you can get the 'network quality' and 'epoch earn
 ```
 ... some python metrics...
 
-# HELP grass_network_quality Grass node network quality metrics
 # TYPE grass_network_quality gauge
-grass_network_quality{ip="ip_address",node_name="grass node name"} {network quality}
+grass_network_quality{ip="X.X.X.X",node_name="NODE_NAME"} 0.0
 # HELP grass_node_earnings Grass node earnings metrics
 # TYPE grass_node_earnings gauge
-grass_node_earnings{ip="ip_address",node_name="grass node name"} {node epoch earning}
+grass_node_earnings{ip="X.X.X.X",node_name="NODE_NAME"} 0.0
 # HELP grass_time_connected Grass node time connected metrics
 # TYPE grass_time_connected gauge
-grass_time_connected{ip="ip_address",node_name="grass node name"} {time in min}
+grass_time_connected{ip="X.X.X.X",node_name="NODE_NAME"} 0.0
 ```
 
 ### JSON
@@ -128,8 +111,13 @@ grass_time_connected{ip="ip_address",node_name="grass node name"} {time in min}
 
 ```json
 {
-  "time_connected": 95228.0,
+  "node_name": "node_name",
+  "time_connected": 12354.0,
   "network_quality": 100.0,
-  "node_earnings": 159.47
+  "node_earnings": 1347.0
 }
 ```
+
+## Grafana
+
+Sample Grafana dashboard example `/grafana/dashboard.json`
