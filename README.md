@@ -121,3 +121,4 @@ grass_time_connected{ip="X.X.X.X",node_name="NODE_NAME"} 0.0
 ## Grafana
 
 Sample Grafana dashboard example `/grafana/dashboard.json`
+![SC 2024-07-05 at 12 42 23 PM](https://github.com/JuneParkCode/grass-miner/assets/81505228/1b656635-e29c-4836-916e-e4c254ab2ef6)
