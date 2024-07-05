@@ -30,6 +30,7 @@ class Grass:
         self.extension_id = None
         self.username = None
         self.password = None
+        self.metrics = None
 
     def init(self):
         try:
@@ -86,7 +87,7 @@ class Grass:
             self.shutdown()
 
     def shutdown(self):
-        self.driver.save_screenshot('./data/error.png')
+        self.__save_error("shutdown", "shutdown progress...")
         print("shutdown app")
         if self.driver is not None:
             self.driver.quit()
@@ -94,24 +95,30 @@ class Grass:
 
     def get_metrics(self):
         # get node table
-        try:
-            self.driver.refresh()
-            time.sleep(1)
+        self.driver.refresh()
 
-            node_elem = self.driver.find_element('xpath', f"//tr[td[3]//*[contains(text(), '{self.ip}')]]")
+        try_count = 1
+        while try_count <= TRY:
+            try:
+                time.sleep(1)
 
-            time_connected = node_elem.find_element('xpath', 'td[4]').text
-            network_quality = float(node_elem.find_element('xpath', 'td[5]').text.replace("%", ""))
-            node_earnings = float(node_elem.find_element('xpath', 'td[6]').text.replace("K", ""))
+                node_elem = self.driver.find_element('xpath', f"//tr[td[3]//*[contains(text(), '{self.ip}')]]")
 
-            return {
-                "time_connected": self.__convert_to_minutes(time_connected),
-                "network_quality": network_quality,
-                "node_earnings": node_earnings
-            }
-        except Exception as e:
-            print(e)
-            return None
+                time_connected = node_elem.find_element('xpath', 'td[4]').text
+                network_quality = float(node_elem.find_element('xpath', 'td[5]').text.replace("%", ""))
+                node_earnings = float(node_elem.find_element('xpath', 'td[6]').text.replace("K", ""))
+
+                self.metrics = {
+                    "time_connected": self.__convert_to_minutes(time_connected),
+                    "network_quality": network_quality,
+                    "node_earnings": node_earnings
+                }
+                return self.metrics
+            except Exception as e:
+                try_count += 1
+
+        self.__save_error("metric_fail", "failed to fetch metrics")
+        return self.metrics
 
     def __login(self):
         print('login...')
@@ -139,7 +146,7 @@ class Grass:
                 print(f'try to find login form.  try: {i + 1} times')
                 time.sleep(3)
 
-        print('Login failed check network or https://app.getgrass.io')
+        self.__save_error("login_fail", "failed to find login form")
         return False
 
     def __send_login_form(self, login_form):
@@ -152,7 +159,7 @@ class Grass:
             print('login form sent')
             return True
         except (WebDriverException, NoSuchElementException) as e:
-            print('failed to find login form')
+            self.__save_error("login_fail", "failed to send login form")
             return False
 
     def __check_login(self):
@@ -165,7 +172,7 @@ class Grass:
             except:
                 print(f'try to login {i + 1}')
                 time.sleep(1)
-        print('login failed')
+        self.__save_error("login_fail", "failed to check login")
         return False
 
     def __check_connection(self):
@@ -178,7 +185,7 @@ class Grass:
                 print(f'check connections... {i + 1}')
                 time.sleep(1)
             return True
-        print('check connection failed')
+        self.__save_error("connection_fail", "failed to check connections")
         return False
 
     def __set_prometheus_metric(self):
@@ -192,14 +199,15 @@ class Grass:
             node_earnings = float(node_elem.find_element('xpath', 'td[6]').text.replace("K", ""))
 
             prometheus.init(node_name, self.ip)
-            return {
+            self.metrics = {
                 "node_name": node_name,
                 "time_connected": time_connected,
                 "network_quality": network_quality,
                 "node_earnings": node_earnings
             }
+            return self.metrics
         except Exception as e:
-            print(e)
+            self.__save_error("set_prometheus_metric", "failed to set prometheus metrics")
             return None
 
     def __convert_to_minutes(self, time_str):
@@ -213,3 +221,7 @@ class Grass:
 
         total_minutes = days * 24 * 60 + hours * 60 + minutes
         return float(total_minutes)
+
+    def __save_error(self, error_name, error_message):
+        self.driver.save_screenshot(f'./data/error/{error_name}.png')
+        print(error_message)
