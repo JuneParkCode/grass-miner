@@ -98,13 +98,13 @@ To check the status of a node, you can get the 'network quality' and 'epoch earn
 ... some python metrics...
 
 # TYPE grass_network_quality gauge
-grass_network_quality{ip="X.X.X.X",node_name="NODE_NAME"} 0.0
+grass_network_quality{node_name="NODE_NAME"} 0.0
 # HELP grass_node_earnings Grass node earnings metrics
 # TYPE grass_node_earnings gauge
-grass_node_earnings{ip="X.X.X.X",node_name="NODE_NAME"} 0.0
+grass_node_earnings{node_name="NODE_NAME"} 0.0
 # HELP grass_time_connected Grass node time connected metrics
 # TYPE grass_time_connected gauge
-grass_time_connected{ip="X.X.X.X",node_name="NODE_NAME"} 0.0
+grass_time_connected{node_name="NODE_NAME"} 0.0
 ```
 
 ### JSON
