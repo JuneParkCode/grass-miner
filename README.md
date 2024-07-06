@@ -12,6 +12,10 @@ Selenium based grass (app.getgrass.io) miner.
 - The app.getgrass.io server might be unstable, causing the error. You can fix the problem by retrying to run the
   programme several times.
 
+
+### Referal
+- [Register with referal](https://app.getgrass.io/register/?referralCode=J_HeStgq_HJd8pX)
+
 ## Configuration
 
 ### Environments
